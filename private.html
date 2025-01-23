@@ -1,0 +1,121 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Henny+Penny&display=swap');
+    *{ overflow-x: hidden; }
+    h1,h2,h3,h4,h5,h6 { margin: 0; }
+    body { padding: 0; margin: 0; background: linear-gradient(360deg, #091b33, #00a9a9, #172459); color: #fff; font-family: 'Poppins' , sans-serif ; }
+    a { text-decoration: none; }
+    .amount { display: flex; }
+    .header { display: flex; align-items: center; padding: 10px; gap: 10px; background: #04365f; color: #fff; box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px; }
+    .header h2 { margin: 0; font-family: "Henny Penny", serif; color: e7e7e7; text-transform: capitalize; }
+    .header img { border-radius: 125px; widows: 40px; height: 40px; }
+    .customer-text { display: flex; align-items: center; gap: 10px; margin: 10px; }
+    .customer-text hr { flex-grow: 1; border: none; border-top: 1px solid #FFF; }
+    #dataTable { margin: 10px; padding: 10px; }
+    form { padding: 20px; gap: 10px; display: flex; justify-content: center; flex-direction: column; }
+    input { padding: 8px 8px 8px 15px; border-radius: 25px; border: none; outline: none; background: #d1d1d1; color: #000; font-weight: 500; font-family: 'Poppins' , sans-serif; }
+    input[type="submit"] { background: #000; color: #fff; }
+    #dataTable img { display: flex; width: 150px; margin: 10px; border-radius: 12px; }
+</style>
+<div class="header">
+  <img src="https://i.ibb.co/NLh3HZj/icon.png" class="image">
+   <h2>Fire Battle</h2>
+ </div>
+<form onsubmit="event.preventDefault(); submitForm();">
+    <input type="text" id="secretCode" name="secretCode" placeholder="Secret Code: " required>
+    <input type="submit" value="Submit">
+</form>
+<div class="customer-text">
+  <h3>Result</h3>
+  <hr>
+</div>
+<div id="dataTable"></div>
+
+<script>
+    const headers = [
+        "Timestamp", "Username", "Tournament Name", "Image", "Entry Fee", 
+        "Prize Pool", "Slots", "Timing", "Mode", "Secret Code", "Password", 
+        "Joined User", "Room Id", "Room Password"
+    ];
+
+    function formatTime(time) {
+        const currentDate = new Date();
+        const timeDate = new Date(time);
+        const diffInMilliseconds = currentDate - timeDate;
+        const diffInSeconds = diffInMilliseconds / 1000;
+        const diffInMinutes = diffInSeconds / 60;
+        const diffInHours = diffInMinutes / 60;
+        const diffInDays = diffInHours / 24;
+        const diffInMonths = diffInDays / 30;
+        const diffInYears = diffInDays / 365;
+
+        if (diffInYears >= 1) {
+            return Math.floor(diffInYears) + ' year(s) ago';
+        } else if (diffInMonths >= 1) {
+            return Math.floor(diffInMonths) + ' month(s) ago';
+        } else if (diffInDays >= 1) {
+            return Math.floor(diffInDays) + ' day(s) ago';
+        } else if (diffInHours >= 1) {
+            return Math.floor(diffInHours) + ' hour(s) ago';
+        } else if (diffInMinutes >= 1) {
+            return Math.floor(diffInMinutes) + ' minute(s) ago';
+        } else {
+            return Math.floor(diffInSeconds) + ' second(s) ago';
+        }
+    }
+
+    function submitForm() {
+        const secretCode = document.getElementById("secretCode").value;
+        const formData = new FormData();
+        formData.append("secretCode", secretCode);
+
+        fetch('https://script.google.com/macros/s/AKfycbzZ2vDo59T1a1hx7B1NhvDn8ib_K4zVtSIIUN8jGuMI9Ac-evuRovDdKPQZJ20QdHxxEA/exec', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayData(data.results);
+            } else {
+                alert("Invalid secret code.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function displayData(results) {
+        let dataContainer = document.getElementById("dataTable");
+        dataContainer.innerHTML = "";
+
+        results.forEach(row => {
+            let resultDiv = document.createElement("div");
+            resultDiv.style.border = "1px solid #ddd";
+            resultDiv.style.margin = "10px 0";
+            resultDiv.style.padding = "10px";
+
+            row.forEach((cell, index) => {
+                let dataParagraph = document.createElement("p");
+
+                if (index === 0) {
+                    dataParagraph.innerHTML = `<strong>${headers[index]}:</strong> ${formatTime(cell)}`;
+                } else if (index === 3) {
+                    let img = document.createElement("img");
+                    img.src = cell;
+                    img.alt = "Image";
+                    img.width = 100;
+                    dataParagraph.innerHTML = `<strong>${headers[index]}:</strong>`;
+                    dataParagraph.appendChild(img);
+                } else {
+                    dataParagraph.innerHTML = `<strong>${headers[index]}:</strong> ${cell}`;
+                }
+
+                resultDiv.appendChild(dataParagraph);
+            });
+
+            dataContainer.appendChild(resultDiv);
+        });
+    }
+</script>

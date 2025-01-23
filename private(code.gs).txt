@@ -1,0 +1,22 @@
+function doPost(e) {
+  const sheet = SpreadsheetApp.openById("1xwJuLPh5BoohfOQ4tp--JPoQmQtxINKPAUyQiDLQ3Ms").getSheetByName("private");
+  const secretCode = e.parameter.secretCode;
+  const data = sheet.getDataRange().getValues();
+
+  let result = [];
+
+  for (let i = 0; i < data.length; i++) {
+    if (data[i][9] == secretCode) {
+      let rowData = data[i].slice(0, 14);
+      result.push(rowData);
+    }
+  }
+
+  if (result.length > 0) {
+    return ContentService.createTextOutput(JSON.stringify({ success: true, results: result }))
+                          .setMimeType(ContentService.MimeType.JSON);
+  } else {
+    return ContentService.createTextOutput(JSON.stringify({ success: false }))
+                          .setMimeType(ContentService.MimeType.JSON);
+  }
+}
